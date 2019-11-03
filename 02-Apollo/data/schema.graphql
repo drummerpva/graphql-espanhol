@@ -1,0 +1,154 @@
+type Cliente {
+  id: ID
+  nome: String
+  apelido: String
+  empresa: String
+  emails: [Email]
+  idade: Int
+  tipo: TipoCliente
+}
+
+type Produto {
+  id: ID
+  nome: String!
+  preco: Int!
+  estoque: Int!
+}
+
+type Email {
+  email: String
+}
+
+type Pedido {
+  id: ID
+  pedido: [PedidoProduto]
+  total: Int
+  data: String
+  cliente: ID
+  status: StatusPedido
+}
+
+type PedidoProduto {
+  id: ID
+  quantidade: Int
+}
+
+type ClienteTotal {
+  total: Float
+  cliente: [Cliente]
+}
+
+type VendedorTotal {
+  total: Float
+  vendedor: [Usuario]
+}
+type Token {
+  token: String
+}
+type Usuario {
+  id: ID
+  usuario: String
+  nome: String
+  rol: String
+}
+
+"""
+Selecione a categoria de Cliente
+"""
+enum TipoCliente {
+  BASICO
+  PREMIUM
+}
+
+enum StatusPedido {
+  PENDENTE
+  COMPLETADO
+  CANCELADO
+}
+
+type Query {
+  getClient(id: ID!): Cliente
+  getClients(limit: Int, offset: Int, vendedor: String): [Cliente]
+  totalClients(vendedor: String): String
+
+  getProdutos(limit: Int, offset: Int, estoque: Boolean): [Produto]
+  getProduto(id: ID!): Produto
+  totalProdutos: String
+
+  getPedidos(cliente: String, vendedor: String): [Pedido]
+  topClientes: [ClienteTotal]
+  getUsuario: Usuario
+
+  topVendedores: [VendedorTotal]
+}
+
+input ProdutoInput {
+  id: ID
+  nome: String
+  preco: Int
+  estoque: Int
+}
+
+input EmailInput {
+  email: String
+}
+"""
+Campos para Clientes novos
+"""
+input ClientInput {
+  id: ID
+  nome: String!
+  apelido: String!
+  empresa: String!
+  emails: [EmailInput]
+  idade: Int!
+  tipo: TipoCliente
+  pedidos: [PedidoInput]
+  vendedor: String
+}
+
+input PedidoInput {
+  id: ID
+  pedido: [PedidoProdutoInput]
+  total: Int
+  data: String
+  cliente: ID
+  status: StatusPedido
+  vendedor: String
+}
+
+input PedidoProdutoInput {
+  id: ID
+  quantidade: Int
+}
+
+"""
+Mutation para criar novos clientes
+"""
+type Mutation {
+  #Nome do resolver, Input com dados e valor que retorna
+  """
+  Permite Criar novos clientes
+  """
+  createClient(data: ClientInput): Cliente
+  updateClient(data: ClientInput): Cliente
+  deleteClient(id: ID!): String
+
+  #produtos
+  novoProduto(data: ProdutoInput): Produto
+  atualizarProduto(data: ProdutoInput): Produto
+  excluirProduto(id: ID!): String
+
+  #pedidos
+  novoPedido(data: PedidoInput): Pedido
+  atualizaPedido(input: PedidoInput): String
+
+  #usuarios
+  createUsuario(
+    usuario: String!
+    nome: String!
+    password: String!
+    rol: String
+  ): String
+  autenticarUsuario(usuario: String!, password: String!): Token
+}
